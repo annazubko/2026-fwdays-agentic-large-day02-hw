@@ -1,0 +1,32 @@
+---
+description: "Testing conventions — apply when writing or modifying test files"
+globs: "packages/**/*.test.ts,packages/**/*.test.tsx,excalidraw-app/**/*.test.ts,excalidraw-app/**/*.test.tsx"
+alwaysApply: false
+---
+
+# Testing Conventions
+
+## Context
+
+Excalidraw uses Vitest with jsdom. Inconsistent test structure leads to flaky tests and poor coverage reporting. This rule ensures tests are predictable, colocated, and focused on behavior.
+
+## Rule
+
+- Colocate tests next to the source file: `ComponentName.test.tsx` beside `ComponentName.tsx`
+- Test files use `kebab-case.test.ts` for utilities and `PascalCase.test.tsx` for components
+- Describe blocks must name the unit under test (component or function name)
+- Test cases start with a verb in plain English: "renders", "throws", "returns", "calls"
+- Use `@testing-library/react` for React components — test behavior, not implementation
+- Cover happy path + edge cases + error conditions for pure functions
+- Test `perform()` output and `keyTest()` logic for actions
+- NEVER snapshot-test complex dynamic UI — use explicit assertions instead
+- NEVER test implementation details (internal state, private methods)
+- NEVER import from third-party library internals
+- Coverage thresholds must be met: 60% lines/statements, 63% functions, 70% branches
+
+## How to verify
+
+1. Run `yarn vitest run <path-to-test-file>` — all tests must pass with no warnings
+2. Run `yarn test:coverage` — coverage thresholds must not regress
+3. Confirm test file is colocated with its source file, not placed in a separate `tests/` folder
+4. Check that no snapshot files were added or changed for dynamic UI components

@@ -1,0 +1,31 @@
+---
+description: "Architecture constraints for Excalidraw"
+globs: packages/excalidraw/**
+alwaysApply: false
+---
+
+# Excalidraw Architecture
+
+## State Management
+
+- Custom state via actionManager — NOT Redux/Zustand/MobX
+- State updates: actionManager.dispatch() ONLY
+- State type: AppState (packages/excalidraw/types.ts)
+
+## Rendering
+
+- Canvas 2D rendering — NOT React DOM for drawing
+- Render pipeline: Scene → renderScene() → canvas context
+- DO NOT use react-konva, fabric.js, pixi.js
+
+## Dependencies
+
+- No new npm packages without explicit approval
+- Check packages/utils/ before adding external helpers
+
+## How to verify
+
+1. Run `grep -r "import.*zustand\|import.*redux\|import.*mobx" packages/excalidraw/` — must return no results
+2. Run `grep -r "react-konva\|fabric\.js\|pixi\.js" packages/excalidraw/` — must return no results
+3. Run `git diff --name-only HEAD | grep package.json` — if package.json changed, verify no new deps were added without approval
+4. Check that any new state mutation goes through `actionManager.dispatch()`, not direct `setState()`

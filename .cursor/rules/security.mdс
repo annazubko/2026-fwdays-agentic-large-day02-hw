@@ -1,0 +1,36 @@
+---
+description: "Security rules for collaboration transport and data handling"
+globs: "excalidraw-app/collab/**,excalidraw-app/**/*.ts,excalidraw-app/**/*.tsx"
+alwaysApply: false
+---
+
+# Security: Collaboration and Data Handling
+
+## Encryption
+
+- Room key MUST stay in the URL fragment (`#`) only — NEVER send it to the server
+- AES encryption is mandatory for all data transmitted via Socket.io portal
+- Do NOT log or expose the room key in console output, error messages, or analytics
+
+## Input Validation
+
+- NEVER pass unsanitized user input directly to `eval()`, `innerHTML`, `dangerouslySetInnerHTML`, or `new Function()`
+- URL parameters and URL fragment values must be validated before use
+- Firebase paths must be constructed from validated IDs only — no user-controlled string concatenation
+
+## Dependency Safety
+
+- Do NOT add packages that process untrusted data (parsers, deserializers) without security review
+- Before importing a new parser (JSON, SVG, image), verify it has no known CVEs via `npm audit`
+
+## Secrets
+
+- Firebase config values come from environment variables only (`VITE_APP_FIREBASE_CONFIG`)
+- `.env.local` is gitignored — NEVER commit secrets to the repo
+
+## How to verify
+
+1. Run `grep -r "dangerouslySetInnerHTML\|eval(" excalidraw-app/` — any result requires immediate review
+2. Run `grep -r "roomKey\|roomID" excalidraw-app/collab/Portal.tsx` — confirm the key is never included in server payload (check `broadcastScene`, `broadcastMouseLocation` calls)
+3. Run `git log --all --full-history -- "**/.env*"` — confirm no `.env.local` or `.env.production` was ever committed
+4. Run `npm audit` — zero high/critical vulnerabilities allowed in `excalidraw-app` dependencies

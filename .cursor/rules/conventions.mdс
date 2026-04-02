@@ -1,0 +1,32 @@
+---
+description: "Code conventions for Excalidraw components and utilities"
+globs: packages/**/*.ts,packages/**/*.tsx
+alwaysApply: false
+---
+
+# Code Conventions
+
+## Components
+
+- Functional components + hooks ONLY (no class components)
+- Props interface: `{ComponentName}Props`
+- Named exports only (no default exports)
+- Colocated tests: `ComponentName.test.tsx`
+
+## TypeScript
+
+- Strict mode — no `any`, no `@ts-ignore`
+- Prefer `type` over `interface` for simple types
+- Import types: `import type { X } from "..."`
+
+## Files
+
+- kebab-case for files: `element-utils.ts`
+- PascalCase for components: `LayerUI.tsx`
+
+## How to verify
+
+1. Run `yarn test:code` (ESLint) — must pass with zero warnings; catches `any`, `@ts-ignore`, default exports
+2. Run `grep -r "export default" packages/` — must return no results (named exports only)
+3. Run `grep -rn "import {" packages/ | grep -v "import type"` — all type-only imports must use `import type`
+4. Check that new `.tsx` files use `PascalCase` and new `.ts` utility files use `kebab-case` via `git diff --name-only HEAD`

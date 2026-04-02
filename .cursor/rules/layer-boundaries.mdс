@@ -1,0 +1,31 @@
+---
+description: "Layer boundary rules — enforce that packages only import from layers below them"
+globs: "packages/math/**/*.ts,packages/common/**/*.ts,packages/element/**/*.ts,packages/element/**/*.tsx,packages/excalidraw/**/*.ts,packages/excalidraw/**/*.tsx,excalidraw-app/**/*.ts,excalidraw-app/**/*.tsx"
+alwaysApply: false
+---
+
+# Package Layer Boundaries
+
+The monorepo has a strict one-way dependency chain. Each layer may only import from layers below it:
+
+```
+excalidraw-app           → can import from: @excalidraw/excalidraw, @excalidraw/element, @excalidraw/math, @excalidraw/common
+@excalidraw/excalidraw   → can import from: @excalidraw/element, @excalidraw/math, @excalidraw/common
+@excalidraw/element      → can import from: @excalidraw/math, @excalidraw/common
+@excalidraw/math         → can import from: @excalidraw/common only
+@excalidraw/common       → no internal imports allowed
+```
+
+## Forbidden imports
+
+- `packages/math/` MUST NOT import from `@excalidraw/element` or `@excalidraw/excalidraw`
+- `packages/common/` MUST NOT import from any other `@excalidraw/*` package
+- `packages/element/` MUST NOT import from `@excalidraw/excalidraw`
+- `packages/excalidraw/` MUST NOT import from `excalidraw-app/`
+
+## How to verify
+
+1. Run `grep -r "from.*@excalidraw/excalidraw" packages/element/` — must return no results
+2. Run `grep -r "from.*@excalidraw/element\|from.*@excalidraw/excalidraw" packages/math/` — must return no results
+3. Run `grep -r "from.*@excalidraw" packages/common/` — must return no results
+4. Run `yarn test:typecheck` — circular or upward imports produce TypeScript resolution errors
