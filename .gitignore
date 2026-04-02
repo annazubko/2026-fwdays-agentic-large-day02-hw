@@ -28,3 +28,4 @@ html
 meta*.json
 .playwright-mcp/
 screenshot-*.png
+references/files.md
